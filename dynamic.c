@@ -1,29 +1,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// add_element(int **ptr_array, int size, int capacity, int new_elem) {
-//   int *array = 0x7ff4;
-//   int *ptr = malloc( 2 * capacity);  // 0x7fd0
-//   if (ptr == NULL) {
-//     return 1;
-//   }
-//   array = ptr;
-//   // array = 0x7fd0;
-// }
+typedef struct {
+    int *array;
+    int capacity;
+    int size;
+} IntArray;
 
-int main() {
-  int size = 0;      // реальное кол-во элементов
-  int capacity = 10; // ёмкость (резерв)
-  int *ptr = (int *)malloc(capacity * sizeof(int)); // 0x7ff4
+int add_element(IntArray *ptr_s, int new_elem) {
+    if (ptr_s == NULL || ptr_s->array == NULL) {
+        return 1; // некорректный указатель или неинициализированный массив
+    }
 
-  if (ptr == NULL) {
-    return 1;
-  }
-    printf("%p\n", ptr);
-    *ptr = 10;
-    free(ptr);
-    
-  // add_element(array, size, capacity, 5);
-  // add_element(&array, size, capacity, 5);
-  return 0;
+    // Если места нет — увеличиваем ёмкость
+    if (ptr_s->size >= ptr_s->capacity) {
+        int new_capacity = ptr_s->capacity * 2;
+        int *new_array = malloc(new_capacity * sizeof(int));
+        if (new_array == NULL) {
+            return 1; // не удалось выделить память
+        }
+
+        // Копируем старые элементы
+        for (int i = 0; i < ptr_s->size; ++i) {
+            new_array[i] = ptr_s->array[i];
+        }
+
+        free(ptr_s->array);
+        ptr_s->array = new_array;
+        ptr_s->capacity = new_capacity;
+    }
+
+    // Добавляем новый элемент и увеличиваем размер
+    ptr_s->array[ptr_s->size] = new_elem;
+    ptr_s->size++;
+
+    return 0; // успех
+}
+
+int print_array(const IntArray *s) {
+    if (s == NULL) {
+        return 1;
+    }
+    printf("array ptr: %p\n", (void *)s->array);
+    printf("size: %d\n", s->size);
+    printf("capacity: %d\n", s->capacity);
+
+    printf("elements: ");
+    for (int i = 0; i < s->size; ++i) {
+        printf("%d ", s->array[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
+int main(void) {
+    IntArray A;
+    A.size = 0;
+    A.capacity = 2;          // уменьшил для наглядности роста
+    A.array = malloc(A.capacity * sizeof(int));
+
+    if (A.array == NULL) {
+        return 1;
+    }
+
+    print_array(&A);
+
+    add_element(&A, 5);
+    add_element(&A, 10);
+    add_element(&A, 20);     // вызовет рост массива
+    add_element(&A, 30);
+
+    print_array(&A);
+
+    free(A.array);
+    return 0;
 }
