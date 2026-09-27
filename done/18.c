@@ -1,5 +1,6 @@
 /*
-9. Написать функцию добавления нового узла в упорядоченное двоичное дерево поиска.
+18. Проверить, является ли двоичное дерево симметричным, то есть равным
+своему отражению.
 */
 
 #include <stdio.h>
@@ -10,8 +11,6 @@ typedef struct Node {
     struct Node* left;
     struct Node* right;
 } Node;
-
-// --------------- основные функции ---------------
 
 Node* create_node(int value) {
     Node* node = (Node*)malloc(sizeof(Node));
@@ -40,32 +39,35 @@ Node* insert(Node* root, int value) {
     return root;
 }
 
-// --------------- доп. функции для проверки ---------------
-
-void inorder(Node* root) {
-    if (root == NULL) {
-        return;
+int are_mirrors(Node* left, Node* right) {
+    if (left == NULL && right == NULL) {
+        return 1;
     }
-
-    inorder(root->left);
-    printf("%d ", root->value);
-    inorder(root->right);
+    if (left == NULL || right == NULL) {
+        return 0;
+    }
+    return left->value == right->value &&
+           are_mirrors(left->left, right->right) &&
+           are_mirrors(left->right, right->left);
 }
 
-// --------------- main для проверки ---------------
+int is_symmetric(Node* root) {
+    if (root == NULL) {
+        return 1;
+    }
+    return are_mirrors(root->left, root->right);
+}
 
 int main(void) {
     Node* root = NULL;
-    int values[] = {50, 30, 70, 20, 40, 60, 80};
+    int values[] = {50, 30, 30, 20, 40, 40, 20};
     int n = sizeof(values) / sizeof(values[0]);
 
     for (int i = 0; i < n; i++) {
         root = insert(root, values[i]);
     }
 
-    printf("BST: ");
-    inorder(root);
-    printf("\n");
-
+    printf("Дерево симметрично: %s\n",
+           is_symmetric(root) ? "да" : "нет");
     return 0;
 }

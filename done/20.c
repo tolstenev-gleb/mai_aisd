@@ -1,5 +1,6 @@
 /*
-9. Написать функцию добавления нового узла в упорядоченное двоичное дерево поиска.
+20. Проверить, является ли двоичное дерево Двоичным B-деревом, то есть не
+содержит ни одного узла степени 1.
 */
 
 #include <stdio.h>
@@ -10,8 +11,6 @@ typedef struct Node {
     struct Node* left;
     struct Node* right;
 } Node;
-
-// --------------- основные функции ---------------
 
 Node* create_node(int value) {
     Node* node = (Node*)malloc(sizeof(Node));
@@ -40,19 +39,22 @@ Node* insert(Node* root, int value) {
     return root;
 }
 
-// --------------- доп. функции для проверки ---------------
-
-void inorder(Node* root) {
+int is_b_tree(Node* root) {
     if (root == NULL) {
-        return;
+        return 1;
     }
 
-    inorder(root->left);
-    printf("%d ", root->value);
-    inorder(root->right);
-}
+    if ((root->left != NULL && root->right == NULL) ||
+        (root->left == NULL && root->right != NULL)) {
+        return 0;
+    }
 
-// --------------- main для проверки ---------------
+    int res = 0;
+    if (is_b_tree(root->left) && is_b_tree(root->right)) {
+        res = 1;
+    } 
+    return res;
+}
 
 int main(void) {
     Node* root = NULL;
@@ -63,9 +65,7 @@ int main(void) {
         root = insert(root, values[i]);
     }
 
-    printf("BST: ");
-    inorder(root);
-    printf("\n");
-
+    printf("Это B-дерево: %s\n",
+           is_b_tree(root) ? "да" : "нет");
     return 0;
 }
